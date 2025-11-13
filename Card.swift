@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Card {
+class Card: Identifiable {
     let id = UUID()
     var name : String
     var elixir : Int
@@ -23,3 +23,5 @@ class Card {
         self.image = image
     }
 }
+
+

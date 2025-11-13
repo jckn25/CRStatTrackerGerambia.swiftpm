@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    
+
     @State var cardSelection: [Card] = [
         Card(
             name: "Knight",
@@ -95,34 +95,40 @@ struct ContentView: View {
             image: "hogrider"
         ),
     ]
-    
+
+    let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+    ]
+
+    @State var myDeck: Deck = Deck()
+
     var body: some View {
         VStack {
-            List {
-                ForEach(0..<rowsCount, id: \.self) { rowIndex in
-                    HStack {
-                        ForEach(0..<4) { columnIndex in
-                            let index = rowIndex * 4 + columnIndex
 
-                            if index < cardSelection.count {
+            DeckView(deck: $myDeck)
 
-                                let card = cardSelection[index]
-
-                                VStack {
-                                    CardView(card: card)
-
-                                }
-                                .frame(maxWidth: .infinity)
-                            } else {
-                                Spacer()
-                            }
-                        }
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 12) {
+                    ForEach(
+                        cardSelection.filter { card in
+                            !myDeck.cards.contains(where: {
+                                $0.name == card.name
+                            })
+                        },
+                        id: \.name
+                    ) { card in
+                        CardView(card: card, deck: myDeck)
+                            .frame(height: 100)
+                            .transition(.opacity)
                     }
                 }
+                .padding()
             }
         }
-    }
-    private var rowsCount: Int {
-        (cardSelection.count + 3) / 4
+
     }
 }
+
