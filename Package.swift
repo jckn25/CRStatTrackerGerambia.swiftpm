@@ -17,11 +17,11 @@ let package = Package(
             name: "CRStatTrackerGerambia",
             targets: ["AppModule"],
             bundleIdentifier: "clc.CRStatTrackerGerambia",
-            teamIdentifier: "7ZVBG9RVCD",
+            teamIdentifier: "LKW7UKGZ29",
             displayVersion: "1.0",
             bundleVersion: "1",
-            appIcon: .placeholder(icon: .running),
-            accentColor: .presetColor(.mint),
+            appIcon: .asset("AppIcon"),
+            accentColor: .presetColor(.blue),
             supportedDeviceFamilies: [
                 .pad,
                 .phone
@@ -40,5 +40,5 @@ let package = Package(
             path: "."
         )
     ],
-    swiftLanguageVersions: [.v6]
+    swiftLanguageVersions: [.version("6")]
 )

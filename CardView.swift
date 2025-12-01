@@ -11,16 +11,17 @@ struct CardView: View {
 
     var card: Card
     @ObservedObject var deck: Deck
+    var allowRemove: Bool = false
 
-    @State var isClicked = false
-    @State var deckFull = false
+    @State private var isClicked = false
+    @State private var deckFull = false
 
     var body: some View {
-
         VStack(spacing: 4) {
             Button {
-                isClicked.toggle()
-                print(card.name)
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isClicked.toggle()
+                }
             } label: {
                 Image(card.image)
                     .resizable()
@@ -31,34 +32,43 @@ struct CardView: View {
             }
 
             if isClicked {
-                HStack(spacing: 8) {
+                VStack(spacing: 8) {
                     Button {
-                        isClicked = false
-                        if deck.cards.contains(where: { $0.name == card.name })
-                        {
-                            print("\(card.name) already in deck")
-                        } else if deck.cards.count < 8 {
-                            withAnimation(.spring()) {
-                                deck.cards.append(card)  // ✅ Move card into deck
+
+                        if allowRemove {
+                            if let index = deck.cards.firstIndex(where: {
+                                $0.id == card.id
+                            }) {
+                                deck.cards.remove(at: index)
                             }
-                            print("Added \(card.name)")
                         } else {
-                            deckFull = true
+                            if !deck.cards.contains(where: { $0.id == card.id })
+                                && deck.cards.count < 8
+                            {
+                                deck.cards.append(card)
+                            } else if deck.cards.count >= 8 {
+                                deckFull = true
+                            }
                         }
+
+                        isClicked = false
                     } label: {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
-                                .foregroundStyle(.green)
+                                .foregroundStyle(
+                                    allowRemove ? Color.red : Color.green
+                                )
                                 .frame(width: 60, height: 30)
-                            Text("Add")
+                            Text(allowRemove ? "Remove" : "Add")
                                 .foregroundStyle(.white)
                                 .font(.title2)
                         }
                     }
-                    .alert("Deck is Full!", isPresented: $deckFull) {
+                    .alert("Deck is Full", isPresented: $deckFull) {
                         Button("OK", role: .cancel) {}
                     }
 
+                    // Optional Info button
                     Button {
                         print("See more about \(card.name)")
                         isClicked = false
@@ -69,71 +79,12 @@ struct CardView: View {
                                 .frame(width: 60, height: 30)
                             Text("Info")
                                 .foregroundStyle(.white)
-                                .font(.caption)
                                 .font(.title2)
                         }
                     }
                 }
+                .transition(.scale.combined(with: .opacity))
             }
         }
-
-        /*VStack {
-            Button {
-                print(card.name)
-                isClicked.toggle()
-            } label: {
-                Image(card.image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 70)
-                    .cornerRadius(8)
-            }
-        
-            if isClicked {
-                Button {
-                    isClicked = false
-                    if deck.cards.contains(where: { $0.name == card.name }) {
-                        print("\(card.name) is already in deck")
-                    } else if deck.cards.count < 8 {
-                        withAnimation {
-                            deck.cards.append(card)
-                        }
-                        print("Added \(card.name)")
-                    } else {
-                        deckFull = true
-                    }
-                } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .foregroundStyle(.green)
-                            .frame(width: 60, height: 30)
-                        Text("Add")
-                            .foregroundStyle(.white)
-                            .font(.title)
-                    }
-                }
-        
-                .alert("Deck is Full!", isPresented: $deckFull) {
-                    Button("OK", role: .cancel) {}
-                }
-        
-                Button {
-                    print("seeing more about \(card.name)")
-                    isClicked = false
-                } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .foregroundStyle(.yellow)
-                            .frame(width: 60, height: 30)
-                        Text("See More")
-                            .foregroundStyle(.white)
-                        //.font(.title)
-                    }
-                }
-            }
-        }*/
-
     }
-
 }
-

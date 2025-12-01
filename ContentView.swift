@@ -8,6 +8,7 @@ struct ContentView: View {
             elixir: 3,
             type: "troop",
             rarity: 0,
+            role: "mini tank",
             image: "knight"
         ),
         Card(
@@ -15,6 +16,7 @@ struct ContentView: View {
             elixir: 3,
             type: "troop",
             rarity: 0,
+            role: "air defense",
             image: "archers"
         ),
         Card(
@@ -22,6 +24,7 @@ struct ContentView: View {
             elixir: 5,
             type: "troop",
             rarity: 1,
+            role: "win condition",
             image: "giant"
         ),
         Card(
@@ -29,6 +32,7 @@ struct ContentView: View {
             elixir: 3,
             type: "spell",
             rarity: 0,
+            role: "splash",
             image: "arrows"
         ),
         Card(
@@ -36,6 +40,7 @@ struct ContentView: View {
             elixir: 4,
             type: "spell",
             rarity: 1,
+            role: "splash",
             image: "fireball"
         ),
         Card(
@@ -43,6 +48,7 @@ struct ContentView: View {
             elixir: 4,
             type: "troop",
             rarity: 1,
+            role: "dps",
             image: "minipekka"
         ),
         Card(
@@ -50,6 +56,7 @@ struct ContentView: View {
             elixir: 3,
             type: "troop",
             rarity: 0,
+            role: "air defense",
             image: "minions"
         ),
         Card(
@@ -57,6 +64,7 @@ struct ContentView: View {
             elixir: 4,
             type: "troop",
             rarity: 1,
+            role: "air defense",
             image: "musketeer"
         ),
         Card(
@@ -64,6 +72,7 @@ struct ContentView: View {
             elixir: 4,
             type: "troop",
             rarity: 2,
+            role: "splash",
             image: "babydragon"
         ),
         Card(
@@ -71,6 +80,7 @@ struct ContentView: View {
             elixir: 2,
             type: "troop",
             rarity: 0,
+            role: "splash",
             image: "bomber"
         ),
         Card(
@@ -78,6 +88,7 @@ struct ContentView: View {
             elixir: 3,
             type: "building",
             rarity: 0,
+            role: "building",
             image: "cannon"
         ),
         Card(
@@ -85,6 +96,7 @@ struct ContentView: View {
             elixir: 1,
             type: "troop",
             rarity: 0,
+            role: "cycle",
             image: "larry"
         ),
         Card(
@@ -92,6 +104,7 @@ struct ContentView: View {
             elixir: 4,
             type: "troop",
             rarity: 1,
+            role: "win condition",
             image: "hogrider"
         ),
     ]
@@ -103,32 +116,64 @@ struct ContentView: View {
         GridItem(.flexible()),
     ]
 
-    @State var myDeck: Deck = Deck()
+    @StateObject var myDeck: Deck = Deck()
 
     var body: some View {
         VStack {
 
-            DeckView(deck: $myDeck)
+            DeckView(deck: myDeck)
 
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(
-                        cardSelection.filter { card in
-                            !myDeck.cards.contains(where: {
-                                $0.name == card.name
-                            })
-                        },
-                        id: \.name
-                    ) { card in
-                        CardView(card: card, deck: myDeck)
-                            .frame(height: 100)
-                            .transition(.opacity)
+            NavigationStack {
+                HStack(spacing: 20) {
+
+                    NavigationLink(
+                        destination: AnalysisView(deck: myDeck),
+                        label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 20)
+                                    .foregroundStyle(myDeck.cards.count == 8 ? Color.yellow : Color.gray.opacity(0.6))
+                                    .frame(width: 130, height: 50)
+                                Text("Submit")
+                                    .font(.title)
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                    )
+                    .disabled(myDeck.cards.count != 8)
+                    .simultaneousGesture(TapGesture().onEnded {
+                        if myDeck.cards.count == 8 {
+                            DeckHistory.shared.addDeck(Deck(copy: myDeck))
+                        }
+                    })
+
+                    NavigationLink(destination: HistoryView()) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 20)
+                                .foregroundStyle(Color.orange)
+                                .frame(width: 160, height: 50)
+                            Text("See History")
+                                .font(.title)
+                                .foregroundStyle(.white)
+                        }
                     }
                 }
-                .padding()
+
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 12) {
+                        ForEach(cardSelection.filter { card in
+                            !myDeck.cards.contains(where: { $0.id == card.id })
+                        }, id: \.id) { card in
+                            CardView(card: card, deck: myDeck)
+                                .frame(height: 100)
+                                .transition(.opacity)
+                                
+                        }
+                    }
+                    .padding()
+                }
             }
         }
-
     }
 }
+
 
