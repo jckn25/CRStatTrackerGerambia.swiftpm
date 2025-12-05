@@ -67,21 +67,6 @@ struct CardView: View {
                     .alert("Deck is Full", isPresented: $deckFull) {
                         Button("OK", role: .cancel) {}
                     }
-
-                    // Optional Info button
-                    Button {
-                        print("See more about \(card.name)")
-                        isClicked = false
-                    } label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .foregroundStyle(.yellow)
-                                .frame(width: 60, height: 30)
-                            Text("Info")
-                                .foregroundStyle(.white)
-                                .font(.title2)
-                        }
-                    }
                 }
                 .transition(.scale.combined(with: .opacity))
             }

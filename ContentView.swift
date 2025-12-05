@@ -120,7 +120,10 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
+            Text("Click cards to add them to your deck")
+                .font(.caption2)
 
+            
             DeckView(deck: myDeck)
 
             NavigationStack {
